@@ -10,7 +10,7 @@
 </mat-toolbar>
   <div class=" row example-button-row">
     <button class="btn btn-primary addbtn" (click)="addNewRow()">ADD</button>
-    <button class="btn btn-secondary editbtn" (click)="EditTableData()" [disabled]="!isEditMode">EDIT</button>
+    <button class="btn btn-primary editbtn" (click)="EditTableData()" [disabled]="!isEditMode">EDIT</button>
   </div>
     <div>
       <form [formGroup]="userForm" autocomplete="off" (ngSubmit)="onSubmit()">
@@ -31,7 +31,7 @@
                   [formGroup]="element"
                 >
                   <mat-form-field appearance="fill" style="width: 30px;">
-                    <input matInput type="text" formControlName="position" />
+                    <input matInput type="text" formControlName="position" [value]="i+1" />
                   </mat-form-field></td
               >
               </div>
@@ -46,8 +46,8 @@
               >
                 <mat-form-field appearance="fill">
                   <input matInput type="text" formControlName="username" placeholder="user name" />
+                  <mat-error *ngIf="element.controls.username.errors && element.controls.username.touched">Username required</mat-error> 
                 </mat-form-field>
-                <mat-error *ngIf="element.controls.username.errors && element.controls.username.touched">Username required</mat-error> 
               </td>
               
             </ng-container>
@@ -62,8 +62,8 @@
               >
                 <mat-form-field appearance="fill" style="width: 30px;">
                   <input matInput type="text" formControlName="age" placeholder="18"/>
+                  <mat-error *ngIf="element.controls.age.errors && element.controls.age.touched">Age required.</mat-error> 
                 </mat-form-field>
-                <mat-error *ngIf="element.controls.age.errors && element.controls.age.touched">Age required.</mat-error> 
               </td>
             </ng-container>
 
@@ -95,10 +95,9 @@
                             [matChipInputFor]="chipList" [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
                             [matChipInputAddOnBlur]="true" (matChipInputTokenEnd)="addMobileNo($event, element)">
                   </mat-chip-list>
-                  <!-- <mat-error *ngIf="element.controls.mobileno.hasError('incorrectMobile') && element.controls.mobileno.touched">
-                    Please enter 10 digit.
-                  </mat-error> -->
-                  <!-- <mat-error *ngIf="element.controls.mobileno.hasError('incorrectMobile')">Please enter 10 digit.</mat-error> -->
+                  <mat-error *ngIf="(element.controls.mobileno.hasError('incorrectMobile') && element.controls.mobileno.touched)">
+                      Please enter 10 digit.
+                    </mat-error>
                 </mat-form-field>
               </td>
             </ng-container>
@@ -117,8 +116,8 @@
                     placeholder="Ex. ABC street..."
                     formControlName="address"
                   ></textarea>
+                  <mat-error *ngIf="element.controls.address.errors && element.controls.address.touched">Address required.</mat-error> 
                 </mat-form-field>
-                <mat-error *ngIf="element.controls.address.errors && element.controls.address.touched">Address required.</mat-error> 
               </td>
             </ng-container>
 
@@ -136,8 +135,8 @@
                     placeholder="abc@mail.com"
                     formControlName="email"
                   />
+                  <mat-error *ngIf="element.controls.email.errors && element.controls.email.touched">Email required.</mat-error> 
                 </mat-form-field>
-                <mat-error *ngIf="element.controls.email.errors && element.controls.email.touched">Email required.</mat-error> 
               </td>
             </ng-container>
 
@@ -155,8 +154,8 @@
                 >
                   <mat-radio-button value="male">Male</mat-radio-button>
                   <mat-radio-button value="female">Female</mat-radio-button>
+                  <mat-error *ngIf="element.controls.gender.errors && element.controls.gender.touched">Gender required.</mat-error> 
                 </mat-radio-group>
-                <mat-error *ngIf="element.controls.gender.errors && element.controls.gender.touched">Gender required.</mat-error> 
               </td>
             </ng-container>
 
@@ -181,8 +180,8 @@
                     [for]="picker"
                   ></mat-datepicker-toggle>
                   <mat-datepicker #picker></mat-datepicker>
+                  <mat-error *ngIf="element.controls.dob.errors && element.controls.dob.touched">DOB required.</mat-error> 
                 </mat-form-field>
-                <mat-error *ngIf="element.controls.dob.errors && element.controls.dob.touched">DOB required.</mat-error> 
               </td>
             </ng-container>
 
@@ -211,10 +210,11 @@
         <tr class="mat-row" *matNoDataRow>
           <td class="mat-cell" colspan="4">No data Added</td>
         </tr>
+        
           </table>
         </ng-container>
         <button class="btn btn-primary submitbtn"
-              type="submit">
+              type="submit" [disabled]="!userForm.valid || (userForm.value.userRow.length == 0)">
               Submit
             </button>
       </form>

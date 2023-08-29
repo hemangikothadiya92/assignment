@@ -32,23 +32,7 @@ export class AppComponent implements OnInit{
   ngOnInit() {
     this.userForm = this._formBuilder.group({
       userRow: this._formBuilder.array([])
-    });
-    if (this.userDataSource.data.length > 0) {
-      this.userForm = this._fb.group({
-        VORows: this._fb.array(this.userDataSource.data.map(val => this._fb.group({
-          position: new FormControl(val.position),
-          name: new FormControl(val.username, Validators.required),
-          age: new FormControl(val.age, Validators.required),
-          dob: new FormControl(val.dob, Validators.required),
-          mobileno: new FormControl([]),
-          address: new FormControl(val.address, Validators.required),
-          email: new FormControl(val.email, [Validators.required, Validators.email]),
-          gender: new FormControl(val.gender, Validators.required)
-        })
-        )) //end of fb array
-      }); // end of form group cretation
-    }
-    
+    }); 
   }
 
   /**
@@ -65,14 +49,14 @@ export class AppComponent implements OnInit{
    * empty form initiate when user click on ADD button
    * @returns
    */
-  userFormInitiate(rowIndex: number) {
+  userFormInitiate(currentRowIndex: number) {
     return this._fb.group({
-      position: new FormControl(rowIndex),
+      position: new FormControl(currentRowIndex),
       username: new FormControl('', Validators.required),
       age: new FormControl('', Validators.required),
       dob: new FormControl('', Validators.required),
-      mobileno: new FormControl([], [Validators.required, Validators.minLength(10)]),
-      mobileHelper: new FormControl(null),
+      mobileno: new FormControl([]),
+      mobileHelper: new FormControl(),
       address: new FormControl('', Validators.required),
       email: new FormControl('', [Validators.required, Validators.email]),
       gender: new FormControl('', Validators.required),
@@ -84,10 +68,12 @@ export class AppComponent implements OnInit{
    * @param index 
    */
   deleteRow(index: number) {
-    // console.log('user data source: ', this.userDataSource.data);
     this.userDataSource.data.splice(index, 1);
-    // console.log('after delete: ', this.userDataSource);
+    this.userDataSource.data.forEach((ele: any, index) => {
+      ele.controls.position.value = index;
+    })
     this.table.renderRows();
+
   }
 
   /**
@@ -119,30 +105,42 @@ export class AppComponent implements OnInit{
    */
    addMobileNo(event: MatChipInputEvent, element: any): void {
     const formControl: AbstractControl = element.get('mobileno');
+   // console.log('form control: ', formControl);
     const helperForm: AbstractControl = element.get('mobileHelper');
+    console.log('help form: ', helperForm);
     const value: string = (event.value || '').trim();
-    if (helperForm.valid) {
-      if (value) {
+    helperForm.updateValueAndValidity();
+    if (helperForm.valid && value) {
+      if (this.mobileNoValidation(value)) {
         formControl.setValue([...formControl.value, value]);
-       // formControl.setErrors({'incorrectMobile': false});
+        formControl.setErrors({'incorrectMobile': false});
+        helperForm.setValue('');
+        formControl.updateValueAndValidity();
       } else {
-        // formControl.setErrors({'incorrectMobile': true});
-      }
-      helperForm.setValue('');
-  } 
+          formControl.setErrors({'incorrectMobile': true});
+      }   
+  } else {
+    formControl.setErrors({'incorrectMobile': false});
+    formControl.updateValueAndValidity();
+  }
 }
    removeMobileNo(selectedEmail: string, element: any): void {
     const formControl: AbstractControl = element.get('mobileno');
     const mobileNoList = formControl.value;
     const index = mobileNoList.indexOf(selectedEmail);
     mobileNoList.splice(index, 1);
+    if (mobileNoList.length == 0) {
+      formControl.setErrors({'incorrectMobile': true});
+    } else {
+      formControl.updateValueAndValidity();
+    }
   }
 
-  // mobileNoValidation(mobileno: any) {
-  //   if (mobileno.length < 10) {
-  //     return false;
-  //   }
-  //   return true;
-  // }
+  mobileNoValidation(mobileno: any) {
+    if (mobileno.length < 10) {
+      return false;
+    }
+    return true;
+  }
 
 }
