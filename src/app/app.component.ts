@@ -13,7 +13,6 @@ export class AppComponent implements OnInit{
 
   @ViewChild(MatTable) table!: MatTable<any>;
 
-  title = 'userApp';
   userData = [];
   displayedColumns: string[] = ['position', 'username', 'age', 'dob', 'mobileno', 'address', 'email', 'gender', 'action'];
   userDataSource = new MatTableDataSource<any>();
@@ -43,6 +42,7 @@ export class AppComponent implements OnInit{
     const control = this.userForm.get('userRow') as FormArray;
     control.insert(control.length, this.userFormInitiate(this.currentRowIndex));
     this.userDataSource = new MatTableDataSource(control.controls);
+    console.log('**********', this.userDataSource.data);
   }
 
   /**
@@ -72,7 +72,7 @@ export class AppComponent implements OnInit{
     this.userDataSource.data.forEach((ele: any, index) => {
       ele.controls.position.value = index;
     })
-    this.table.renderRows();
+   this.table.renderRows();
 
   }
 
@@ -83,6 +83,7 @@ export class AppComponent implements OnInit{
     if (this.userForm.valid) {
       this.isFormSubmitted = true;
     }
+    console.log('user form: ', this.userForm);
     this.isEditMode = true;
     this.userForm.disable();
   }
@@ -90,8 +91,9 @@ export class AppComponent implements OnInit{
   /**
    * User can edit the Table row data
    */
-  EditTableData() {
+  editTableData() {
     this.isEditMode = true;
+    this.isFormSubmitted = true;
     const control = this.userForm.get('userRow') as FormArray;
     control.enable();
   } 

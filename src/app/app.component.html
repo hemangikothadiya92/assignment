@@ -10,7 +10,7 @@
 </mat-toolbar>
   <div class=" row example-button-row">
     <button class="btn btn-primary addbtn" (click)="addNewRow()">ADD</button>
-    <button class="btn btn-primary editbtn" (click)="EditTableData()" [disabled]="!isEditMode">EDIT</button>
+    <button class="btn btn-primary editbtn" (click)="editTableData()" [disabled]="!isEditMode">EDIT</button>
   </div>
     <div>
       <form [formGroup]="userForm" autocomplete="off" (ngSubmit)="onSubmit()">
@@ -174,7 +174,7 @@
                     [matDatepicker]="picker"
                     formControlName="dob"
                   />
-                  <mat-hint>MM/DD/YYYY</mat-hint>
+                  <!-- <mat-hint>MM/DD/YYYY</mat-hint> -->
                   <mat-datepicker-toggle
                     matSuffix
                     [for]="picker"
