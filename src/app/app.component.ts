@@ -7,22 +7,30 @@ import { COMMA, ENTER } from '@angular/cdk/keycodes';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.css'],
 })
-export class AppComponent implements OnInit{
-
+export class AppComponent implements OnInit {
   @ViewChild(MatTable) table!: MatTable<any>;
 
   userData = [];
-  displayedColumns: string[] = ['position', 'username', 'age', 'dob', 'mobileno', 'address', 'email', 'gender', 'action'];
+  displayedColumns: string[] = [
+    'position',
+    'username',
+    'age',
+    'dob',
+    'mobileno',
+    'address',
+    'email',
+    'gender',
+    'action',
+  ];
   userDataSource = new MatTableDataSource<any>();
   userForm!: FormGroup;
   currentRowIndex: number = 0;
   isFormSubmitted = false;
   isEditMode = false;
-  eachRowFormcontrol: any
+  eachRowFormcontrol: any;
   public readonly separatorKeysCodes: number[] = [ENTER, COMMA];
-  emailList = [];
   constructor(private _fb: FormBuilder, private _formBuilder: FormBuilder) {}
 
   /**
@@ -30,24 +38,23 @@ export class AppComponent implements OnInit{
    */
   ngOnInit() {
     this.userForm = this._formBuilder.group({
-      userRow: this._formBuilder.array([])
-    }); 
+      userRow: this._formBuilder.array([]),
+    });
   }
 
   /**
    * new row added with empty form fields in Table
    */
   addNewRow() {
-    this.currentRowIndex = this.currentRowIndex + 1;
+    this.currentRowIndex = this.userDataSource.data.length + 1;
     const control = this.userForm.get('userRow') as FormArray;
     control.insert(control.length, this.userFormInitiate(this.currentRowIndex));
     this.userDataSource = new MatTableDataSource(control.controls);
-    console.log('**********', this.userDataSource.data);
   }
 
   /**
    * empty form initiate when user click on ADD button
-   * @returns
+   * @returns form group
    */
   userFormInitiate(currentRowIndex: number) {
     return this._fb.group({
@@ -65,15 +72,14 @@ export class AppComponent implements OnInit{
 
   /**
    * Delete row data based on index
-   * @param index 
+   * @param index
    */
   deleteRow(index: number) {
     this.userDataSource.data.splice(index, 1);
     this.userDataSource.data.forEach((ele: any, index) => {
       ele.controls.position.value = index;
-    })
-   this.table.renderRows();
-
+    });
+    this.table.renderRows();
   }
 
   /**
@@ -83,7 +89,6 @@ export class AppComponent implements OnInit{
     if (this.userForm.valid) {
       this.isFormSubmitted = true;
     }
-    console.log('user form: ', this.userForm);
     this.isEditMode = true;
     this.userForm.disable();
   }
@@ -96,7 +101,7 @@ export class AppComponent implements OnInit{
     this.isFormSubmitted = true;
     const control = this.userForm.get('userRow') as FormArray;
     control.enable();
-  } 
+  }
 
   /**
    * User can enter multiple mobile No.
@@ -105,44 +110,52 @@ export class AppComponent implements OnInit{
    * @param   {any}                element  [Form control]
    *
    */
-   addMobileNo(event: MatChipInputEvent, element: any): void {
+  addMobileNo(event: MatChipInputEvent, element: any): void {
     const formControl: AbstractControl = element.get('mobileno');
-   // console.log('form control: ', formControl);
     const helperForm: AbstractControl = element.get('mobileHelper');
-    console.log('help form: ', helperForm);
     const value: string = (event.value || '').trim();
     helperForm.updateValueAndValidity();
     if (helperForm.valid && value) {
       if (this.mobileNoValidation(value)) {
         formControl.setValue([...formControl.value, value]);
-        formControl.setErrors({'incorrectMobile': false});
+        formControl.setErrors({ incorrectMobile: false });
         helperForm.setValue('');
         formControl.updateValueAndValidity();
       } else {
-          formControl.setErrors({'incorrectMobile': true});
-      }   
-  } else {
-    formControl.setErrors({'incorrectMobile': false});
-    formControl.updateValueAndValidity();
+        formControl.setErrors({ incorrectMobile: true });
+      }
+    } else {
+      formControl.setErrors({ incorrectMobile: false });
+      formControl.updateValueAndValidity();
+    }
   }
-}
-   removeMobileNo(selectedEmail: string, element: any): void {
+
+  /**
+   * Remove mobile no from chips when user click on cross(x)
+   * @param selectedEmail
+   * @param element
+   */
+  removeMobileNo(selectedMobileNo: string, element: any): void {
     const formControl: AbstractControl = element.get('mobileno');
     const mobileNoList = formControl.value;
-    const index = mobileNoList.indexOf(selectedEmail);
+    const index = mobileNoList.indexOf(selectedMobileNo);
     mobileNoList.splice(index, 1);
     if (mobileNoList.length == 0) {
-      formControl.setErrors({'incorrectMobile': true});
+      formControl.setErrors({ incorrectMobile: true });
     } else {
       formControl.updateValueAndValidity();
     }
   }
 
+  /**
+   * validate the mobile number
+   * @param mobileno mobile no
+   * @returns
+   */
   mobileNoValidation(mobileno: any) {
     if (mobileno.length < 10) {
       return false;
     }
     return true;
   }
-
 }

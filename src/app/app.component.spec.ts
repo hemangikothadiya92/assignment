@@ -1,11 +1,10 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { AppComponent } from './app.component';
-import { FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { By } from '@angular/platform-browser';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -13,6 +12,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { By } from '@angular/platform-browser';
 
 describe('AppComponent', () => {
   let component: AppComponent;
@@ -28,14 +28,14 @@ describe('AppComponent', () => {
         FormsModule,
         ReactiveFormsModule,
         MatTableModule,
-        MatIconModule,
-        MatToolbarModule,
         MatInputModule,
-    MatFormFieldModule,
-    MatDatepickerModule,
-    MatRadioModule,
-    MatNativeDateModule,
-    MatChipsModule
+        MatFormFieldModule,
+        MatChipsModule,
+        MatToolbarModule,
+        MatIconModule,
+        MatDatepickerModule,
+        MatRadioModule,
+        MatNativeDateModule
       ],
       declarations: [
         AppComponent
@@ -46,10 +46,8 @@ describe('AppComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(AppComponent);
     component = fixture.componentInstance;
-    formBuilder = new FormBuilder();
-    form = formBuilder.group({
-      userRow: formBuilder.array([]),
-    });
+    formBuilder = TestBed.inject(FormBuilder);
+    fixture.detectChanges();
   });
 
   it('should create the app', () => {
@@ -58,104 +56,55 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should initialize empty userRow', () => {
-    component.ngOnInit();
-    const itemsArray = form.get('userRow') as FormArray;
-    expect(itemsArray.length).toBe(0);
+  it('should add new row', () => {
+    component.addNewRow();
+    const control = component.userForm.get('userRow') as FormArray;
+    expect(control?.length).toBe(1);
   });
 
-  
-  it('should add a new item to the form array', () => {
-    const rowsArray = form.get('userRow') as FormArray;
-    rowsArray.insert(rowsArray.length, component.userFormInitiate(1));
-    expect(rowsArray.length).toBe(1);
-  });
-
-  it('should add row in table', () => {
-    const rowsArray = form.get('userRow') as FormArray;
-    rowsArray.insert(rowsArray.length, component.userFormInitiate(1));
-    component.userDataSource = new MatTableDataSource(rowsArray.controls);
-    expect(component.userDataSource.data.length).toEqual(1);
+  it('should enable form controls for editing', () => {
+    component.addNewRow();
+    component.editTableData();
+    const formArray = component.userForm.get('userRow') as FormArray;
+    const formGroup = formArray.controls[0] as FormGroup;
+      for (const controlName in formGroup.controls) {
+        const control = formGroup.controls[controlName];
+        expect(control.enabled).toBe(true);
+      }
     
   });
 
-  it('check login form is valid or not', () => {
-    const ELEMENT_DATA = [
-      {
-        position: 1,
-        username: 'Hydrogen',
-        age: '21',
-        dob: '09/01/2023',
-        mobileno: ['0000000000'],
-        mobileHelper: '999',
-        address: 'abs street',
-        email: 'abc@mail.com',
-        gender: 'male',
-      },
-      {
-        position: 2,
-        username: 'Hydrogen',
-        age: '21',
-        dob: '09/01/2023',
-        mobileno: ['0000000000'],
-        mobileHelper: '',
-        address: 'abs street',
-        email: 'abc@mail.com',
-        gender: 'male',
-      },
-    ];
-    const userform = form.get('userRow') as FormArray;
-    userform.insert(userform.length, component.userFormInitiate(1));
-    userform.controls[0].setValue({
-      position: 1,
-      username: 'Hydrogen',
-      age: '21',
-      dob: '09/01/2023',
-      mobileno: ['0000000000'],
-      mobileHelper: '',
-      address: 'abs street',
-      email: 'abc@mail.com',
-      gender: 'male',
-    });
-    const isUserFormValid = userform.valid;
-    expect(isUserFormValid).toBeTruthy();
+  it('Should delete the row when user click on delete icon', () => {
+    component.addNewRow();
+    component.addNewRow();
+    component.deleteRow(0);
+    expect(component.userDataSource.data.length).toEqual(1);
   });
 
-  it('should deleteRow call', fakeAsync(() => {
-    const index = 0;
-    const dummyFormData: FormGroup = formBuilder.group({
-      position: new FormControl(1),
-      username: new FormControl('', Validators.required),
-      age: new FormControl('', Validators.required),
-      dob: new FormControl('', Validators.required),
-      mobileno: new FormControl([]),
-      mobileHelper: new FormControl(),
-      address: new FormControl('', Validators.required),
-      email: new FormControl('', [Validators.required, Validators.email]),
-      gender: new FormControl('', Validators.required),
+  it('Should call onSubmit', () => {
+    component.addNewRow();
+    const formArray = component.userForm.get('userRow') as FormArray;
+    const formGroup = formArray.controls[0] as FormGroup;
+    formGroup.setValue({
+      position: 0,
+      username: 'John',
+      age: '21',
+      dob: '1/08/2023',
+      mobileno: [9876543210],
+      mobileHelper: '',
+      address: 'abc street',
+      email: 'john@mail.com',
+      gender: 'male'
     });
-    const dummyFormData1: FormGroup = formBuilder.group({
-      position: new FormControl(1),
-      username: new FormControl('', Validators.required),
-      age: new FormControl('', Validators.required),
-      dob: new FormControl('', Validators.required),
-      mobileno: new FormControl([]),
-      mobileHelper: new FormControl(),
-      address: new FormControl('', Validators.required),
-      email: new FormControl('', [Validators.required, Validators.email]),
-      gender: new FormControl('', Validators.required),
-    });
-    component.userDataSource.data.push(dummyFormData);
-    component.userDataSource.data.push(dummyFormData1);
-    console.log('data source: ', component.userDataSource.data);
-    const deleteSpy = spyOn(component, 'deleteRow').and.callThrough();
-    const initialRowCount = component.userDataSource.data.length;
-    component.userDataSource.data.splice(index, 1);
-    fixture.detectChanges();
-    component.deleteRow(0);
-    const finalRowCount = component.userDataSource.data.length;
-    expect(deleteSpy).toHaveBeenCalledWith(0);
-  }));
+    component.onSubmit();
+    expect(component.isFormSubmitted).toBeTrue();
+    
+  })
+
+  it('should initialize user form', () => {
+    const form = component.userFormInitiate(0);
+    expect(form.get('position')).toBeTruthy();
+  });
 
   it('Should call mobileNoValidation', () => {
     const mobileno = '9090909090';
@@ -164,84 +113,25 @@ describe('AppComponent', () => {
     expect(spy).toHaveBeenCalled();
   });
 
-  it('Should call addNewRow', () => {
-    const control = form.get('userRow') as FormArray;
-    const addNewRowSpy = spyOn(component, 'addNewRow').and.callThrough();
-    component.addNewRow();
-    expect(addNewRowSpy).toHaveBeenCalled();
-  });
-  
-  it('should call onSubmit method when Submit button is clicked', () => {
-    
-    const userform = form.get('userRow') as FormArray;
-    userform.insert(userform.length, component.userFormInitiate(1));
-    userform.controls[0].setValue({
-      position: 1,
-      username: 'Hydrogen',
-      age: '21',
-      dob: '09/01/2023',
-      mobileno: ['0000000000'],
-      mobileHelper: '',
-      address: 'abs street',
-      email: 'abc@mail.com',
-      gender: 'male',
+  it('should add valid mobile number to form control', () => {
+    const validMobileNo = '1234567890';
+    const event: MatChipInputEvent = {
+      value: validMobileNo,
+    } as MatChipInputEvent;
+    const formControl: AbstractControl = new FormControl([]);
+    const helperForm: AbstractControl = new FormControl('');
+
+    component.addMobileNo(event, {
+      get: (key: any) => {
+        if (key === 'mobileno') return formControl;
+        if (key === 'mobileHelper') return helperForm;
+        return null;
+      },
     });
-    const isUserFormValid = userform.valid;
-    console.log('is form valid: ', isUserFormValid);
-    const spy = spyOn(component, 'onSubmit').and.callThrough();
-    component.onSubmit();
-    expect(component.isFormSubmitted).toBe(true);
-    expect(component.onSubmit).toHaveBeenCalled();
-  });
 
-   it('should userForm validate', () => {
-    const rowsArray = form.get('userRow') as FormArray;
-    rowsArray.insert(rowsArray.length, component.userFormInitiate(1));
-    component.userDataSource = new MatTableDataSource(rowsArray.controls);
-   // console.log(component.userDataSource.data[0]);
-    const input = component.userDataSource.data[0].get('username');
-    input.value = 'john';
-    expect(form.valid).toBeFalsy();
-  });
-
-  it('Should call editTableData', () => {
-    component.userForm = new FormGroup({
-      userRow: new FormArray([
-        new FormGroup({
-      position: new FormControl(1),
-      username: new FormControl('', Validators.required),
-      age: new FormControl('', Validators.required),
-      dob: new FormControl('', Validators.required),
-      mobileno: new FormControl([]),
-      mobileHelper: new FormControl(),
-      address: new FormControl('', Validators.required),
-      email: new FormControl('', [Validators.required, Validators.email]),
-      gender: new FormControl('', Validators.required),
-        })
-      ]),
-    });
-    component.editTableData();
-    expect(component.isEditMode).toBe(true);
-    expect(component.isFormSubmitted).toBe(true);
-
-    const control = component.userForm.get('userRow') as FormArray;
-    for (let i = 0; i < control.length; i++) {
-      const group = control.at(i) as FormGroup;
-      const isEnabled = group.enabled;
-      expect(isEnabled).toBe(true);
-    }
-  });
-
-  it('Should call addMobileNo', () => {
-    const event: MatChipInputEvent = { value: '1234567890' } as MatChipInputEvent;
-    const formGroup: FormGroup = new FormGroup({
-      mobileno: new FormControl([]),
-      mobileHelper: new FormControl('', [Validators.required]),
-    });
-    console.log('form group:', formGroup);
-    const spy1 = spyOn(component, 'mobileNoValidation').and.callThrough();
-    component.addMobileNo(event, formGroup);
-    expect(spy1).toHaveBeenCalled();
+    expect(formControl.value).toEqual([validMobileNo]);
+    expect(formControl.hasError('incorrectMobile')).toBe(false);
+    expect(helperForm.value).toBe('');
   });
 
   it('should remove selected mobile number from the form control', () => {
@@ -268,6 +158,13 @@ describe('AppComponent', () => {
     const mobileNumber = '123456789'; // 9 digits
     const isValid = component.mobileNoValidation(mobileNumber);
     expect(isValid).toBe(false);
+  });
+
+  it('Should call addNewRow when click in ADD button', () => {
+    const addbtn = fixture.debugElement.query(By.css('.addbtn'));
+    addbtn.triggerEventHandler('click', null);
+    component.userFormInitiate(1);
+    expect(component.userDataSource.data.length).toEqual(1);
   });
   
 });
