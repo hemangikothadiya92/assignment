@@ -1,0 +1,66 @@
+
+/* .row {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+} */
+
+.container {
+    display: flex;
+    width: 100%;
+    border-radius: 5px;
+    border: 1px solid black;
+  }
+  
+  .mat-radio-button ~ .mat-radio-button {
+      margin-left: 16px;
+    }
+  
+  .usertable {
+      width: 100%;
+    }
+  
+    /* td {
+      width: 33%; 
+    } */
+  
+    .mat-form-field {
+      /* padding-right: 5px; */
+      font-size: 12px;
+    }
+  
+    .mat-table-header {
+      th {
+        width: 200px;
+        font-weight: bold;
+        color: #333;
+        background-color: #f0f0f0;
+      }
+    }
+  
+  .submitbtn {
+    margin-top: 20px;
+    margin-left: 20px;
+  }
+  
+  .addbtn {
+    margin-left: 20px;
+    margin-top: 20px;
+  }
+  
+  .editbtn {
+    margin-left: 20px;
+    margin-top: 20px;
+  }
+  
+  body {
+    overflow: hidden; /* Hide scrollbars */
+  }
+  
+  .mat-column-demo-position {
+    width: 32px;
+    border-right: 1px solid currentColor;
+    padding-right: 24px;
+    text-align: center;
+  }
+  

@@ -1,0 +1,32 @@
+<div class="container mt-5">
+<mat-form-field>
+  <mat-select [formControl]="tabDropdownControl" (selectionChange)="onTabSelect($event)" multiple placeholder="please select filter">
+    <mat-option *ngFor="let tab of tabDropdownList" [value]="tab">{{tab}}</mat-option>
+  </mat-select>
+</mat-form-field>
+
+<form *ngIf="form" [formGroup]="form" (ngSubmit)="onSubmit()">
+<mat-tab-group formArrayName="tabs" *ngIf="form.get('tabs')">
+  <mat-tab *ngFor="let tab of getFormControl('tabs'); let i = index" [formGroupName]="i">
+    <ng-template mat-tab-label>
+      {{ getTabName(tab)}}
+    </ng-template>
+
+    <div formArrayName="checkboxes">
+      <div *ngFor="let checkbox of getCheckbox(tab,'checkboxes'); let j = index">
+        <mat-checkbox [formControlName]="j">{{ finalData[i].checkboxList[j].name }}</mat-checkbox>
+      </div>
+    </div>
+  </mat-tab>
+</mat-tab-group>
+<div class="example-button-row">
+  <button class="btn btn-primary submitbtn">Submit</button>
+</div>
+</form>
+<div class="row">
+  <ul *ngFor="let data of printFinalResult">
+    <li>{{data | json}}</li>
+  </ul>
+  
+</div>
+</div>

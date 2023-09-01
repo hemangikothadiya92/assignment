@@ -17,10 +17,18 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatChipsModule } from '@angular/material/chips';
+import { FiltersComponent } from './filters/filters.component';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTabsModule } from '@angular/material/tabs';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import { UsersComponent } from './users/users.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    FiltersComponent,
+    UsersComponent
   ],
   imports: [
     BrowserModule,
@@ -37,7 +45,11 @@ import { MatChipsModule } from '@angular/material/chips';
     MatDatepickerModule,
     MatRadioModule,
     MatNativeDateModule,
-    MatChipsModule
+    MatChipsModule,
+    MatDividerModule,
+    MatSelectModule,
+    MatTabsModule,
+    MatCheckboxModule
   ],
   providers: [],
   bootstrap: [AppComponent]

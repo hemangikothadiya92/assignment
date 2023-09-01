@@ -1,0 +1,204 @@
+<div>
+    <div class=" row example-button-row">
+      <button class="btn btn-primary addbtn" (click)="addNewRow()">ADD</button>
+      <button class="btn btn-primary editbtn" (click)="editTableData()" [disabled]="!isEditMode">EDIT</button>
+    </div>
+      <div>
+        <form [formGroup]="userForm" autocomplete="off" (ngSubmit)="onSubmit()">
+          <ng-container formArrayName="userRow">
+            <table
+              #table
+              mat-table
+              [dataSource]="userDataSource"
+              class="mat-elevation-z8 mt-5 usertable"
+            >
+              <!-- Position Column -->
+              <ng-container matColumnDef="position">
+                <th mat-header-cell *matHeaderCellDef>No.</th>
+                <div class="col-md-4">
+                  <td
+                    mat-cell
+                    *matCellDef="let element; let i = index"
+                    [formGroup]="element"
+                  >
+                    <mat-form-field appearance="fill" style="width: 30px;">
+                      <input matInput type="text" formControlName="position" [value]="i+1" />
+                    </mat-form-field></td
+                >
+                </div>
+              </ng-container>
+              <!-- User Name Column -->
+              <ng-container matColumnDef="username">
+                <th mat-header-cell *matHeaderCellDef>User Name</th>
+                <td
+                  mat-cell
+                  *matCellDef="let element; let i = index"
+                  [formGroup]="element"
+                >
+                  <mat-form-field appearance="fill">
+                    <input matInput type="text" formControlName="username" placeholder="user name" />
+                    <mat-error *ngIf="element.controls.username.errors && element.controls.username.touched">Username required</mat-error> 
+                  </mat-form-field>
+                </td>
+                
+              </ng-container>
+  
+              <!-- Age Column -->
+              <ng-container matColumnDef="age">
+                <th mat-header-cell *matHeaderCellDef>Age</th>
+                <td
+                  mat-cell
+                  *matCellDef="let element; let i = index"
+                  [formGroup]="element"
+                >
+                  <mat-form-field appearance="fill" style="width: 60px;">
+                    <input matInput type="number" formControlName="age" placeholder="18"/>
+                    <mat-error *ngIf="element.controls.age.errors && element.controls.age.touched">Age required.</mat-error> 
+                  </mat-form-field>
+                </td>
+              </ng-container>
+  
+              <!-- Mobile No Column -->
+              <ng-container matColumnDef="mobileno">
+                <th mat-header-cell *matHeaderCellDef>Mobile No</th>
+                <td
+                  mat-cell
+                  *matCellDef="let element; let i = index"
+                  [formGroup]="element"
+                >
+                  <mat-form-field  appearance="fill">
+                    <mat-chip-list required #chipList formControlName="mobileno">
+                      <mat-chip *ngFor="let mobileno of element.get('mobileno').value" (removed)="removeMobileNo(mobileno, element)">
+                        {{ mobileno }}
+                        <mat-icon matChipRemove>clear</mat-icon>
+                      </mat-chip>
+                      <input formControlName="mobileHelper" placeholder="Add Mobile no here"
+                              [matChipInputFor]="chipList" [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                              [matChipInputAddOnBlur]="true" (matChipInputTokenEnd)="addMobileNo($event, element)">
+                    </mat-chip-list>
+                    <mat-error *ngIf="(element.controls.mobileno.hasError('incorrectMobile') || element.controls.mobileno.touched)">
+                        Please enter 10 digit.
+                      </mat-error>
+                  </mat-form-field>
+                </td>
+              </ng-container>
+  
+              <!-- Address Column -->
+              <ng-container matColumnDef="address">
+                <th mat-header-cell *matHeaderCellDef>Address</th>
+                <td
+                  mat-cell
+                  *matCellDef="let element; let i = index"
+                  [formGroup]="element"
+                >
+                  <mat-form-field style="width: 100px" appearance="fill">
+                    <textarea
+                      matInput
+                      placeholder="Ex. ABC street..."
+                      formControlName="address"
+                    ></textarea>
+                    <mat-error *ngIf="element.controls.address.errors && element.controls.address.touched">Address required.</mat-error> 
+                  </mat-form-field>
+                </td>
+              </ng-container>
+  
+              <!-- Email Column -->
+              <ng-container matColumnDef="email">
+                <th mat-header-cell *matHeaderCellDef>Email</th>
+                <td
+                  mat-cell
+                  *matCellDef="let element; let i = index"
+                  [formGroup]="element"
+                >
+                  <mat-form-field appearance="fill">
+                    <input
+                      matInput
+                      placeholder="abc@mail.com"
+                      formControlName="email"
+                    />
+                    <mat-error *ngIf="element.controls.email.hasError('required') && element.controls.email.touched">Email required.</mat-error>
+                    <mat-error *ngIf="element.controls.email.hasError('email')&& element.controls.email.touched">Invalid email format.</mat-error> 
+                  </mat-form-field>
+                </td>
+              </ng-container>
+  
+              <!-- Gender Column -->
+              <ng-container matColumnDef="gender">
+                <th mat-header-cell *matHeaderCellDef>Gender</th>
+                <td
+                  mat-cell
+                  *matCellDef="let element; let i = index"
+                  [formGroup]="element"
+                >
+                  <mat-radio-group
+                    aria-label="Select an option"
+                    formControlName="gender"
+                  >
+                    <mat-radio-button value="male">Male</mat-radio-button>
+                    <mat-radio-button value="female">Female</mat-radio-button>
+                    <mat-error *ngIf="element.controls.gender.errors && element.controls.gender.touched">Gender required.</mat-error> 
+                  </mat-radio-group>
+                </td>
+              </ng-container>
+  
+              <!-- DOB Column -->
+              <ng-container matColumnDef="dob">
+                <th mat-header-cell *matHeaderCellDef>DOB</th>
+                <td
+                  mat-cell
+                  *matCellDef="let element; let i = index"
+                  [formGroup]="element"
+                >
+                  <mat-form-field appearance="fill">
+                    <mat-label>Choose a date</mat-label>
+                    <input
+                      matInput
+                      [matDatepicker]="picker"
+                      formControlName="dob"
+                    />
+                    <!-- <mat-hint>MM/DD/YYYY</mat-hint> -->
+                    <mat-datepicker-toggle
+                      matSuffix
+                      [for]="picker"
+                    ></mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                    <mat-error *ngIf="element.controls.dob.errors && element.controls.dob.touched">DOB required.</mat-error> 
+                  </mat-form-field>
+                </td>
+              </ng-container>
+  
+              <ng-container matColumnDef="action">
+                <th mat-header-cell *matHeaderCellDef>Action</th>
+                <td
+                  mat-cell
+                  *matCellDef="let element; let i = index"
+                  [formGroup]="element"
+                >
+                  <button
+                    mat-icon-button
+                    class="material-icons app-toolbar-menu delete-button"
+                    matTooltip="Delete"
+                    color="warn"
+                    (click)="deleteRow(i)"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </td>
+              </ng-container>
+  
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+              <!-- Row shown when there is no matching data. -->
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" colspan="4">No data Added</td>
+          </tr>
+          
+            </table>
+          </ng-container>
+          <button class="btn btn-primary submitbtn"
+                type="submit" [disabled]="!userForm.valid || (userForm.value.userRow.length == 0)">
+                Submit
+              </button>
+        </form>
+      </div>
+    </div>
