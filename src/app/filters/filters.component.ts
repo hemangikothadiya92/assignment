@@ -10,6 +10,7 @@ export class FiltersComponent implements OnInit {
   tabDropdownControl = new FormControl('');
   tabDropdownList: string[] = ['Center', 'Language', 'Residential State', 'Agreement State'];
   printResult: any = [];
+  checkboxes: any = [];
 
   tabData = [
     {
@@ -57,10 +58,14 @@ export class FiltersComponent implements OnInit {
     console.log('original tab data: ', this.tabData);
   }
 
-  createFormForSelectedTab(tabData: any) {
-    tabData.forEach((tab: any) => {
-      const checkboxControls = tab.checkboxList.map((checkbox: any) =>
-        this.formBuilder.control(checkbox.checked)
+  createFormForSelectedTab(tabData:any){
+    tabData.forEach((tab:any) => {
+      const checkboxControls = tab.checkboxList.map((checkbox:any) =>
+        //this.formBuilder.control(checkbox.checked)
+        this.formBuilder.group({
+          name: checkbox.name,
+          checked: checkbox.checked,
+        })
       );
 
       const arr = this.form.get('tabs') as FormArray;
@@ -102,22 +107,7 @@ export class FiltersComponent implements OnInit {
     this.createFormForSelectedTab(this.finalData);
   }
 
-  printFinalResult: any = [];
   onSubmit() {
-    const obj: any = {};
-    const formTabsArray = this.form.get('tabs') as FormArray;
-
-    formTabsArray.controls.forEach((tabControl: any, tabindex) => {
-      const checkBoxControls = tabControl.get('checkboxes') as FormArray;
-      obj['tabname'] = tabControl.get('tabname').value;
-      checkBoxControls.controls.forEach((checkBoxControl: any, checkboxindex) => {
-        if (checkBoxControl.value) {
-          const checkboxData = this.finalData[tabindex].checkboxList[checkboxindex];
-          obj['SelectedCheckboxes'] = checkboxData;
-          this.printFinalResult.push(obj);
-        }
-      })
-    });
-    console.log('final object: ', this.printFinalResult);
+    console.log(this.form.value);
   }
 }
